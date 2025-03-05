@@ -1,32 +1,23 @@
 CREATE TABLE IF NOT EXISTS Movies (
     id INTEGER PRIMARY KEY,
-    name VARCHAR NOT NULL,
+    title VARCHAR NOT NULL,
     release_date DATE NOT NULL,
-    slogan VARCHAR,
-    country VARCHAR,
+    tagline VARCHAR,
     budget INTEGER,
-    revenues INTEGER,
+    revenue INTEGER,
     duration TIME,
-    rating FLOAT
+    rating FLOAT,
+    description TEXT
 );
 
-CREATE TABLE IF NOT EXISTS Series (
+CREATE TABLE IF NOT EXISTS TVShows (
     id INTEGER PRIMARY KEY,
-    name VARCHAR NOT NULL,
+    title VARCHAR NOT NULL,
     release_date DATE NOT NULL,
-    slogan VARCHAR,
-    country VARCHAR,
+    tagline VARCHAR,
     budget INTEGER,
-    rating FLOAT
-);
-
-CREATE TABLE IF NOT EXISTS People (
-    id INTEGER PRIMARY KEY,
-    first_name VARCHAR NOT NULL,
-    last_name VARCHAR NOT NULL,
-    birthdate DATE,
-    place_of_birth VARCHAR,
-    bio TEXT
+    rating FLOAT,
+    description TEXT
 );
 
 CREATE TABLE IF NOT EXISTS Genres (
@@ -34,34 +25,106 @@ CREATE TABLE IF NOT EXISTS Genres (
     name VARCHAR NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS Countries (
+    id INTEGER PRIMARY KEY,
+    name VARCHAR NOT NULL
+);
+
+CREATE TABLE IF NOT EXISTS Personnel (
+    id INTEGER PRIMARY KEY,
+    name VARCHAR NOT NULL,
+    birth_date DATE,
+    birth_place VARCHAR,
+    description TEXT
+);
+
 CREATE TABLE IF NOT EXISTS Roles (
     id INTEGER PRIMARY KEY,
     name VARCHAR NOT NULL
 );
 
-CREATE TABLE IF NOT EXISTS SeriesEpisodes (
+CREATE TABLE IF NOT EXISTS Characters (
     id INTEGER PRIMARY KEY,
-    series_id INTEGER NOT NULL,
     name VARCHAR NOT NULL,
+    description TEXT
+);
+
+CREATE TABLE IF NOT EXISTS Episodes (
+    id INTEGER PRIMARY KEY,
+    tvshow_id INTEGER NOT NULL,
+    season_number INTEGER,
+    episode_number INTEGER,
+    title VARCHAR NOT NULL,
     release_date DATE NOT NULL,
     duration TIME,
     rating FLOAT,
-    FOREIGN KEY (series_id) REFERENCES Series(id)
+    FOREIGN KEY (tvshow_id) REFERENCES TVShows(id)
 );
 
-CREATE TABLE IF NOT EXISTS ProductGenres (
-    product_id INTEGER NOT NULL,
+CREATE TABLE IF NOT EXISTS MovieGenres (
+    movie_id INTEGER NOT NULL,
     genre_id INTEGER NOT NULL,
-    FOREIGN KEY (product_id) REFERENCES Movies(id),
+    FOREIGN KEY (movie_id) REFERENCES Movies(id),
     FOREIGN KEY (genre_id) REFERENCES Genres(id)
 );
 
-CREATE TABLE IF NOT EXISTS ProductParticipants (
-    product_id INTEGER NOT NULL,
+CREATE TABLE IF NOT EXISTS TVShowGenres (
+    tvshow_id INTEGER NOT NULL,
+    genre_id INTEGER NOT NULL,
+    FOREIGN KEY (tvshow_id) REFERENCES TVShows(id),
+    FOREIGN KEY (genre_id) REFERENCES Genres(id)
+);
+
+CREATE TABLE IF NOT EXISTS MovieCountries (
+    movie_id INTEGER NOT NULL,
+    country_id INTEGER NOT NULL,
+    FOREIGN KEY (movie_id) REFERENCES Movies(id),
+    FOREIGN KEY (country_id) REFERENCES Countries(id)
+);
+
+CREATE TABLE IF NOT EXISTS TVShowCountries (
+    tvshow_id INTEGER NOT NULL,
+    country_id INTEGER NOT NULL,
+    FOREIGN KEY (tvshow_id) REFERENCES TVShows(id),
+    FOREIGN KEY (country_id) REFERENCES Countries(id)
+);
+
+CREATE TABLE IF NOT EXISTS MoviePersonnel (
+    movie_id INTEGER NOT NULL,
     person_id INTEGER NOT NULL,
     role_id INTEGER NOT NULL,
-    character_name VARCHAR,
-    FOREIGN KEY (product_id) REFERENCES Movies(id),
-    FOREIGN KEY (person_id) REFERENCES People(id),
+    FOREIGN KEY (movie_id) REFERENCES Movies(id),
+    FOREIGN KEY (person_id) REFERENCES Personnel(id),
+    FOREIGN KEY (role_id) REFERENCES Roles(id)
+);
+
+CREATE TABLE IF NOT EXISTS TVShowPersonnel (
+    tvshow_id INTEGER NOT NULL,
+    person_id INTEGER NOT NULL,
+    role_id INTEGER NOT NULL,
+    FOREIGN KEY (tvshow_id) REFERENCES TVShows(id),
+    FOREIGN KEY (person_id) REFERENCES Personnel(id),
+    FOREIGN KEY (role_id) REFERENCES Roles(id)
+);
+
+CREATE TABLE IF NOT EXISTS MovieCharacters (
+    movie_id INTEGER NOT NULL,
+    character_id INTEGER NOT NULL,
+    person_id INTEGER NOT NULL,
+    role_id INTEGER NOT NULL,
+    FOREIGN KEY (movie_id) REFERENCES Movies(id),
+    FOREIGN KEY (character_id) REFERENCES Characters(id),
+    FOREIGN KEY (person_id) REFERENCES Personnel(id),
+    FOREIGN KEY (role_id) REFERENCES Roles(id)
+);
+
+CREATE TABLE IF NOT EXISTS TVShowCharacters (
+    tvshow_id INTEGER NOT NULL,
+    character_id INTEGER NOT NULL,
+    person_id INTEGER NOT NULL,
+    role_id INTEGER NOT NULL,
+    FOREIGN KEY (tvshow_id) REFERENCES TVShows(id),
+    FOREIGN KEY (character_id) REFERENCES Characters(id),
+    FOREIGN KEY (person_id) REFERENCES Personnel(id),
     FOREIGN KEY (role_id) REFERENCES Roles(id)
 );
