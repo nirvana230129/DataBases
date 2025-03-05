@@ -82,6 +82,7 @@ CREATE TABLE IF NOT EXISTS Episodes (
 CREATE TABLE IF NOT EXISTS MovieGenres (
     movie_id INTEGER NOT NULL,
     genre_id INTEGER NOT NULL,
+    PRIMARY KEY (movie_id, genre_id),
     FOREIGN KEY (movie_id) REFERENCES Movies(id),
     FOREIGN KEY (genre_id) REFERENCES Genres(id)
 );
@@ -89,6 +90,7 @@ CREATE TABLE IF NOT EXISTS MovieGenres (
 CREATE TABLE IF NOT EXISTS TVShowGenres (
     tvshow_id INTEGER NOT NULL,
     genre_id INTEGER NOT NULL,
+    PRIMARY KEY (tvshow_id, genre_id),
     FOREIGN KEY (tvshow_id) REFERENCES TVShows(id),
     FOREIGN KEY (genre_id) REFERENCES Genres(id)
 );
@@ -96,6 +98,7 @@ CREATE TABLE IF NOT EXISTS TVShowGenres (
 CREATE TABLE IF NOT EXISTS MovieCountries (
     movie_id INTEGER NOT NULL,
     country_id INTEGER NOT NULL,
+    PRIMARY KEY (movie_id, country_id),
     FOREIGN KEY (movie_id) REFERENCES Movies(id),
     FOREIGN KEY (country_id) REFERENCES Countries(id)
 );
@@ -103,6 +106,7 @@ CREATE TABLE IF NOT EXISTS MovieCountries (
 CREATE TABLE IF NOT EXISTS TVShowCountries (
     tvshow_id INTEGER NOT NULL,
     country_id INTEGER NOT NULL,
+    PRIMARY KEY (tvshow_id, country_id),
     FOREIGN KEY (tvshow_id) REFERENCES TVShows(id),
     FOREIGN KEY (country_id) REFERENCES Countries(id)
 );
@@ -111,6 +115,7 @@ CREATE TABLE IF NOT EXISTS MoviePersonnel (
     movie_id INTEGER NOT NULL,
     person_id INTEGER NOT NULL,
     role_id INTEGER NOT NULL,
+    PRIMARY KEY (movie_id, person_id, role_id),
     FOREIGN KEY (movie_id) REFERENCES Movies(id),
     FOREIGN KEY (person_id) REFERENCES Personnel(id),
     FOREIGN KEY (role_id) REFERENCES Roles(id)
@@ -120,6 +125,7 @@ CREATE TABLE IF NOT EXISTS TVShowPersonnel (
     tvshow_id INTEGER NOT NULL,
     person_id INTEGER NOT NULL,
     role_id INTEGER NOT NULL,
+    PRIMARY KEY (tvshow_id, person_id, role_id),
     FOREIGN KEY (tvshow_id) REFERENCES TVShows(id),
     FOREIGN KEY (person_id) REFERENCES Personnel(id),
     FOREIGN KEY (role_id) REFERENCES Roles(id)
@@ -130,6 +136,7 @@ CREATE TABLE IF NOT EXISTS MovieCharacters (
     character_id INTEGER NOT NULL,
     person_id INTEGER NOT NULL,
     role_id INTEGER NOT NULL,
+    PRIMARY KEY (movie_id, character_id, person_id, role_id),
     FOREIGN KEY (movie_id) REFERENCES Movies(id),
     FOREIGN KEY (character_id) REFERENCES Characters(id),
     FOREIGN KEY (person_id) REFERENCES Personnel(id),
@@ -141,6 +148,7 @@ CREATE TABLE IF NOT EXISTS TVShowCharacters (
     character_id INTEGER NOT NULL,
     person_id INTEGER NOT NULL,
     role_id INTEGER NOT NULL,
+    PRIMARY KEY (tvshow_id, character_id, person_id, role_id),
     FOREIGN KEY (tvshow_id) REFERENCES TVShows(id),
     FOREIGN KEY (character_id) REFERENCES Characters(id),
     FOREIGN KEY (person_id) REFERENCES Personnel(id),
