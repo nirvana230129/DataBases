@@ -1,3 +1,20 @@
+DROP TABLE IF EXISTS Characters;
+DROP TABLE IF EXISTS Countries;
+DROP TABLE IF EXISTS Episodes;
+DROP TABLE IF EXISTS Genres;
+DROP TABLE IF EXISTS MovieCharacters;
+DROP TABLE IF EXISTS MovieCountries;
+DROP TABLE IF EXISTS MovieGenres;
+DROP TABLE IF EXISTS MoviePersonnel;
+DROP TABLE IF EXISTS Movies;
+DROP TABLE IF EXISTS Personnel;
+DROP TABLE IF EXISTS Roles;
+DROP TABLE IF EXISTS TVShowCharacters;
+DROP TABLE IF EXISTS TVShowCountries;
+DROP TABLE IF EXISTS TVShowGenres;
+DROP TABLE IF EXISTS TVShowPersonnel;
+DROP TABLE IF EXISTS TVShows;
+
 CREATE TABLE IF NOT EXISTS Movies (
     id INTEGER PRIMARY KEY,
     title VARCHAR NOT NULL,
@@ -22,25 +39,26 @@ CREATE TABLE IF NOT EXISTS TVShows (
 
 CREATE TABLE IF NOT EXISTS Genres (
     id INTEGER PRIMARY KEY,
-    name VARCHAR NOT NULL
+    name VARCHAR UNIQUE NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS Countries (
     id INTEGER PRIMARY KEY,
-    name VARCHAR NOT NULL
+    name VARCHAR UNIQUE NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS Personnel (
     id INTEGER PRIMARY KEY,
     name VARCHAR NOT NULL,
     birth_date DATE,
+    death_date DATE,
     birth_place VARCHAR,
     description TEXT
 );
 
 CREATE TABLE IF NOT EXISTS Roles (
     id INTEGER PRIMARY KEY,
-    name VARCHAR NOT NULL
+    name VARCHAR UNIQUE NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS Characters (
@@ -54,8 +72,8 @@ CREATE TABLE IF NOT EXISTS Episodes (
     tvshow_id INTEGER NOT NULL,
     season_number INTEGER,
     episode_number INTEGER,
-    title VARCHAR NOT NULL,
-    release_date DATE NOT NULL,
+    title VARCHAR,
+    release_date DATE,
     duration TIME,
     rating FLOAT,
     FOREIGN KEY (tvshow_id) REFERENCES TVShows(id)
