@@ -8,7 +8,7 @@ cursor = conn.cursor()
 with open('clean.sql', 'r') as file:
     sql_script = file.read()
     cursor.executescript(sql_script)
-with open('main.sql', 'r') as file:
+with open('main2.sql', 'r') as file:
     sql_script = file.read()
     cursor.executescript(sql_script)
 
