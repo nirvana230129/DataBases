@@ -1,6 +1,7 @@
 import sqlite3
 from tqdm import tqdm
 import pandas as pd
+from datetime import time
 
 
 class Database:
@@ -28,6 +29,14 @@ class Database:
         with open('sql/create.sql', 'r') as file:
             sql_script = file.read()
             self._cursor.executescript(sql_script)
+
+    @staticmethod
+    def _evaluate_duration(duration: str) -> str:
+        if pd.isna(duration):
+            return duration
+        duration = int(duration)
+        duration = str(time(duration // 60, duration % 60))
+        return duration[:duration.rfind(':')]
 
     def _fill_personnel(self, personnel_df: pd.DataFrame):
         for i, row in tqdm(personnel_df.iterrows(), total=len(personnel_df)):
@@ -60,6 +69,16 @@ class Database:
             except Exception as e:
                 raise Exception(f'Error inserting country {i}, {row}:\n{e}\n' + '=' * 80)
 
+    def _fill_roles(self, roles_df: pd.DataFrame):
+        for i, row in tqdm(roles_df.iterrows(), total=len(roles_df)):
+            try:
+                self._cursor.execute('''
+                    INSERT INTO Roles (name)
+                    VALUES (?);
+                ''', (row['Role'],))
+            except Exception as e:
+                raise Exception(f'Error inserting role {i}, {row}:\n{e}\n' + '=' * 80)
+
     def _fill_episodes(self, episodes_df: pd.DataFrame):
         for i, row in tqdm(episodes_df.iterrows(), total=len(episodes_df)):
             try:
@@ -68,9 +87,9 @@ class Database:
                     (tv_show_id, season_number, episode_number, title, release_date, duration, rating)
                     VALUES (?, ?, ?, ?, ?, ?, ?);
                 ''', (row['IMDb_id'][2:], row['Season'], row['Episode'], row['Title'], row['Release_Date'],
-                      row['Duration'], row['Rating']))
+                      self._evaluate_duration(row['Duration']), row['Rating']))
             except Exception as e:
-                raise Exception(f'Error inserting country {i}, {row}:\n{e}\n' + '=' * 80)
+                raise Exception(f'Error inserting episode {i}, {row}:\n{e}\n' + '=' * 80)
 
     def fill(self, files_dict: dict[str, str | tuple[str, str]]):
         def get_file_and_delimiter(value):
@@ -86,8 +105,8 @@ class Database:
                 return None, None
             return file_, delimiter_
 
-        files = ['personnel_file', 'genres_file', 'countries_file', 'episodes_file']
-        funcs = [self._fill_personnel, self._fill_genres, self._fill_countries, self._fill_episodes]
+        files = ['roles_file', 'genres_file', 'countries_file', 'episodes_file', 'personnel_file']
+        funcs = [self._fill_roles, self._fill_genres, self._fill_countries, self._fill_episodes, self._fill_personnel]
         for file, fill_function in zip(files, funcs):
             if file in files_dict:
                 file_name, delimiter = get_file_and_delimiter(files_dict[file])
@@ -103,8 +122,9 @@ with Database('database') as db:
     db.clean()
     db.create()
     db.fill({
-        'personnel_file': '../data/personnel_data.csv',
+        # 'personnel_file': '../data/personnel_data.csv',
         'genres_file': '../data/genres_data.csv',
         'countries_file': '../data/countries_data.csv',
         'episodes_file': ('../data/TVShows_data.csv', ';'),
+        # 'roles_file': '../data/roles_data.csv',
     })
