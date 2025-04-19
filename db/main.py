@@ -242,13 +242,14 @@ class Database:
 
 
 with Database('database') as db:
-    db.clean()
-    db.create()
-    db.fill({
-        'genres_file': '../data/genres_data.csv',
-        'countries_file': '../data/countries_data.csv',
-        'content_file': '../data/movies_data.csv',
-        'personnel_file': '../data/personnel_data.csv',
-        'episodes_file': ('../data/TVShows_data.csv', ';'),
-        'roles_file': '../data/roles_data.csv',
-    })
+    # db.clean()
+    # db.create()
+    # db.fill({
+    #     'genres_file': '../data/genres_data.csv',
+    #     'countries_file': '../data/countries_data.csv',
+    #     'content_file': '../data/movies_data.csv',
+    #     'personnel_file': '../data/personnel_data.csv',
+    #     'episodes_file': ('../data/TVShows_data.csv', ';'),
+    #     'roles_file': '../data/roles_data.csv',
+    # })
+    pass
