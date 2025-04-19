@@ -1,7 +1,8 @@
 import sqlite3
 from tqdm import tqdm
 import pandas as pd
-from datetime import time
+from datetime import time, datetime
+import requests
 
 
 class Database:
@@ -91,6 +92,76 @@ class Database:
             except Exception as e:
                 raise Exception(f'Error inserting episode {i}, {row}:\n{e}\n' + '=' * 80)
 
+    def _fill_content(self, content_df: pd.DataFrame):
+        def evaluate_money(amount:str):
+            if pd.isna(amount):
+                return amount
+            if ', ' in amount:
+                amount = amount[:amount.find(', ')]
+            amount = amount.replace(',', '').replace(' (estimated)', '')
+            if amount.startswith('$'):
+                return int(amount[1:])
+            API_KEY = '644d6b2b311f60854e108f66'
+            url = f'https://v6.exchangerate-api.com/v6/{API_KEY}/latest/{amount[:3]}'
+            response = requests.get(url)
+            data = response.json()
+            rate = data['conversion_rates']['USD']
+            return int(amount[3:]) * rate
+
+        def evaluate_date(original_date: str) -> str:
+            if pd.isna(original_date):
+                return original_date
+            if len(original_date) == 4 and original_date.isdigit():
+                original_date = f'01 Jan {original_date}'
+            else:
+                original_date = original_date[:original_date.find('(') - 1]
+            date_object = datetime.strptime(original_date, "%d %b %Y")
+            formatted_date = date_object.strftime("%Y-%m-%d")
+            return formatted_date
+
+        for i, row in tqdm(content_df.iterrows(), total=len(content_df)):
+            if i == 25:
+                return
+            try:
+                release_date = evaluate_date(row['Release Date'])
+                budget = 100 # evaluate_money(row['Budget'])
+                revenue = 100 # evaluate_money(row['Revenue'])
+                is_tv_show = eval(row['IsTVShow'])
+                if is_tv_show:
+                    # TVShows
+                    self._cursor.execute('''
+                        INSERT INTO TVShows 
+                        (id, title, release_date, tagline, budget, rating, description)
+                        VALUES (?, ?, ?, ?, ?, ?, ?);
+                    ''', (row['MovieID'], row['Title'], release_date, row['Tagline'], budget,
+                          row['Rating'], row['Description']))
+                else:
+                    # Movies
+                    self._cursor.execute('''
+                        INSERT INTO Movies 
+                        (id, title, release_date, tagline, budget, revenue, duration, rating, description)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);
+                    ''', (row['MovieID'], row['Title'], release_date, row['Tagline'], budget,
+                          revenue, self._evaluate_duration(row['Duration']), row['Rating'], row['Description']))
+
+                # ContentCountries
+                for country in eval(row['Countries']):
+                    self._cursor.execute(f'''
+                        INSERT INTO ContentCountries ({'tv_show_id' if is_tv_show else 'movie_id'}, country_id)
+                        VALUES (?, (SELECT id FROM Countries WHERE name = ?));
+                    ''', (row['MovieID'], country))
+
+                # ContentGenres
+                for genre in eval(row['Genres']):
+                    self._cursor.execute(f'''
+                        INSERT INTO ContentGenres ({'tv_show_id' if is_tv_show else 'movie_id'}, genre_id)
+                        VALUES (?, (SELECT id FROM Genres WHERE name = ?));
+                    ''', (row['MovieID'], genre))
+
+
+            except Exception as e:
+                raise Exception(f'Error inserting content {i}, {row}:\n{e}\n' + '=' * 80)
+
     def fill(self, files_dict: dict[str, str | tuple[str, str]]):
         def get_file_and_delimiter(value):
             if not isinstance(value, (str, list, tuple)):
@@ -105,8 +176,9 @@ class Database:
                 return None, None
             return file_, delimiter_
 
-        files = ['roles_file', 'genres_file', 'countries_file', 'episodes_file', 'personnel_file']
-        funcs = [self._fill_roles, self._fill_genres, self._fill_countries, self._fill_episodes, self._fill_personnel]
+        files = ['roles_file', 'genres_file', 'countries_file', 'episodes_file', 'personnel_file', 'content_file']
+        funcs = [self._fill_roles, self._fill_genres, self._fill_countries, self._fill_episodes, self._fill_personnel,
+                 self._fill_content]
         for file, fill_function in zip(files, funcs):
             if file in files_dict:
                 file_name, delimiter = get_file_and_delimiter(files_dict[file])
@@ -122,9 +194,10 @@ with Database('database') as db:
     db.clean()
     db.create()
     db.fill({
-        # 'personnel_file': '../data/personnel_data.csv',
         'genres_file': '../data/genres_data.csv',
         'countries_file': '../data/countries_data.csv',
-        'episodes_file': ('../data/TVShows_data.csv', ';'),
+        'content_file': '../data/movies_data.csv',
+        # 'personnel_file': '../data/personnel_data.csv',
+        # 'episodes_file': ('../data/TVShows_data.csv', ';'),
         # 'roles_file': '../data/roles_data.csv',
     })
