@@ -1,3 +1,4 @@
 Отчеты
-data/*.csv
-data/*.numbers
+*.csv
+*.numbers
+*.env

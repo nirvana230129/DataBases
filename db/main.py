@@ -3,6 +3,8 @@ from tqdm import tqdm
 import pandas as pd
 from datetime import time, datetime
 import requests
+from dotenv import load_dotenv
+import os
 
 
 class Database:
@@ -99,33 +101,46 @@ class Database:
             if ', ' in amount:
                 amount = amount[:amount.find(', ')]
             amount = amount.replace(',', '').replace(' (estimated)', '')
+
             if amount.startswith('$'):
                 return int(amount[1:])
-            API_KEY = '644d6b2b311f60854e108f66'
-            url = f'https://v6.exchangerate-api.com/v6/{API_KEY}/latest/{amount[:3]}'
+
+            currency_code = amount[:3]
+            amount = int(amount[3:])
+            if currency_code == 'FRF':
+                rate = 0.17337
+                return amount * rate
+
+            if currency_code == 'RUR':
+                currency_code = 'RUB'
+
+            load_dotenv()
+            api_key = os.getenv('API_KEY')
+
+            url = f'https://v6.exchangerate-api.com/v6/{api_key}/latest/{currency_code}'
             response = requests.get(url)
             data = response.json()
             rate = data['conversion_rates']['USD']
-            return int(amount[3:]) * rate
+            return amount * rate
 
         def evaluate_date(original_date: str) -> str:
             if pd.isna(original_date):
                 return original_date
+
+            if '(' in original_date:
+                original_date = original_date[:original_date.find('(') - 1]
+
             if len(original_date) == 4 and original_date.isdigit():
                 original_date = f'01 Jan {original_date}'
-            else:
-                original_date = original_date[:original_date.find('(') - 1]
             date_object = datetime.strptime(original_date, "%d %b %Y")
             formatted_date = date_object.strftime("%Y-%m-%d")
             return formatted_date
 
         for i, row in tqdm(content_df.iterrows(), total=len(content_df)):
-            if i == 25:
-                return
             try:
                 release_date = evaluate_date(row['Release Date'])
-                budget = 100 # evaluate_money(row['Budget'])
-                revenue = 100 # evaluate_money(row['Revenue'])
+                budget = evaluate_money(row['Budget'])
+                revenue = evaluate_money(row['Revenue'])
                 is_tv_show = eval(row['IsTVShow'])
                 if is_tv_show:
                     # TVShows
@@ -158,6 +173,42 @@ class Database:
                         VALUES (?, (SELECT id FROM Genres WHERE name = ?));
                     ''', (row['MovieID'], genre))
 
+                # ContentPersonnel
+                for role in ['location management', 'costume designer', 'music department', 'casting department',
+                             'costume department', 'art direction', 'make up', 'visual effects', 'director',
+                             'composer', 'assistant director', 'casting director', 'editor', 'producer',
+                             'cinematographer', 'miscellaneous crew', 'special effects',
+                             'camera and electrical department', 'art department', 'stunt performer', 'thanks',
+                             'production design', 'set decoration', 'cast', 'production manager', 'sound crew',
+                             'script department', 'writer', 'transportation department', 'editorial department']:
+                    for person_id in eval(row[role]):
+                        self._cursor.execute(f'''
+                            INSERT INTO ContentPersonnel 
+                            ({'tv_show_id' if is_tv_show else 'movie_id'}, person_id, role_id)
+                            VALUES (?, ?, (SELECT id FROM Roles WHERE name = ?));
+                        ''', (row['MovieID'], person_id, role))
+
+                    # ContentCharacters
+                    if role == 'cast':
+                        cast = eval(row[role])
+
+                        self._cursor.execute("SELECT id FROM Roles WHERE name = 'cast';")
+                        cast_id = self._cursor.fetchone()[0]
+
+                        for person_id in cast:
+                            self._cursor.execute(f'''
+                                INSERT INTO ContentCharacters (content_person_id, character_name)
+                                VALUES (
+                                            (
+                                                SELECT id FROM ContentPersonnel 
+                                                WHERE
+                                                    {'tv_show_id' if is_tv_show else 'movie_id'} = ? AND 
+                                                    person_id = ? AND 
+                                                    role_id = ?
+                                            ), 
+                                            ?
+                                        );
+                            ''', (row['MovieID'], person_id, cast_id, cast[person_id]))
 
             except Exception as e:
                 raise Exception(f'Error inserting content {i}, {row}:\n{e}\n' + '=' * 80)
@@ -197,7 +248,7 @@ with Database('database') as db:
         'genres_file': '../data/genres_data.csv',
         'countries_file': '../data/countries_data.csv',
         'content_file': '../data/movies_data.csv',
-        # 'personnel_file': '../data/personnel_data.csv',
-        # 'episodes_file': ('../data/TVShows_data.csv', ';'),
-        # 'roles_file': '../data/roles_data.csv',
+        'personnel_file': '../data/personnel_data.csv',
+        'episodes_file': ('../data/TVShows_data.csv', ';'),
+        'roles_file': '../data/roles_data.csv',
     })
