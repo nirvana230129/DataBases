@@ -1,3 +1,4 @@
+import sqlite3
 import psycopg2
 
 
@@ -37,7 +38,39 @@ class PostgreDatabase:
             sql_script = file.read()
             self._cursor.execute(sql_script)
 
+    def transfer_from_sqlite(self, sqlite_db_path):
+        sqlite_conn = sqlite3.connect(sqlite_db_path)
+        sqlite_cursor = sqlite_conn.cursor()
 
-with PostgreDatabase(dbname='MoviesTVShowsDB', user='postgres', password='Arif2004') as pdb:
+        tables_order = [
+            'Genres',
+            'Countries',
+            'Roles',
+            'Personnel',
+            'Movies',
+            'TVShows',
+            'Episodes',
+            'ContentGenres',
+            'ContentCountries',
+            'ContentPersonnel',
+            'ContentCharacters'
+        ]
+
+        for table in tables_order:
+            sqlite_cursor.execute(f"SELECT * FROM {table}")
+            rows = sqlite_cursor.fetchall()
+
+            for row in rows:
+                placeholders = ', '.join(['%s'] * len(row))
+                self._cursor.execute(f"INSERT INTO {table} VALUES ({placeholders})", row)
+
+            self._conn.commit()
+
+        sqlite_conn.close()
+
+
+
+with PostgreDatabase(dbname='MoviesTVShowsDB', user='postgres', password='Arif2004', host='127.0.0.1') as pdb:
     pdb.clean()
     pdb.create()
+    pdb.transfer_from_sqlite('database.db')
