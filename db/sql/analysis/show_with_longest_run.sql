@@ -1,4 +1,4 @@
--- Поиск сериала с самым большим временным промежутком между выходом первой и последней серий.
+-- TV show with the longest span between the first and last episode release dates.
 WITH EpisodeDates AS (
     SELECT
         tv_show_id,
@@ -28,4 +28,4 @@ FROM
     JOIN TVShows T ON TS.tv_show_id = T.id
 ORDER BY
     TS.time_span DESC
-LIMIT 1
+LIMIT 1;

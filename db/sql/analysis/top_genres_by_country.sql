@@ -1,4 +1,4 @@
--- Определение для каждой страны топ-3 популярных жанров.
+-- Top 3 genres by title count for each country.
 WITH GenreCounts AS (
     SELECT
         C.name AS country,
@@ -32,4 +32,4 @@ WHERE
     rank <= 3
 ORDER BY
     country,
-    rank
+    rank;

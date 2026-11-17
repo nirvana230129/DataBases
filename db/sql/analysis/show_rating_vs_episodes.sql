@@ -1,5 +1,4 @@
--- Для сериалов, серии которых внесены в БД, определить отклонение их рейтинга
--- от среднего рейтинга их серий.
+-- Deviation of a TV show rating from the average rating of its episodes.
 WITH EpisodeRatings AS (
     SELECT
         tv_show_id,
@@ -19,4 +18,4 @@ FROM
     TVShows T
     JOIN EpisodeRatings ER ON T.id = ER.tv_show_id
 ORDER BY
-    ABS(rating_deviation) DESC
+    ABS(rating_deviation) DESC;

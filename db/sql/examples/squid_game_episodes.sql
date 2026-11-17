@@ -1,5 +1,4 @@
--- Получение частичной информации о всех вышедших сериях сериала Squid Game в порядке
--- номера сезона и серии.
+-- Released Squid Game episodes ordered by season and episode number.
 SELECT E.season_number AS season,
        E.episode_number AS episode,
        E.title,
@@ -11,4 +10,4 @@ FROM TVShows TVS
 WHERE TVS.title = 'Squid Game' AND
       E.release_date <= CURRENT_DATE
 ORDER BY season,
-         episode
+         episode;

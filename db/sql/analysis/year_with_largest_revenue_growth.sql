@@ -1,4 +1,4 @@
--- Поиск года с максимальным приростом кассовых сборов.
+-- Year with the largest year-over-year box-office growth.
 WITH YearlyRevenue AS (
     SELECT
         strftime('%Y', release_date) AS year,
@@ -22,4 +22,4 @@ FROM
     RevenueChanges
 ORDER BY
     revenue_change DESC
-LIMIT 1
+LIMIT 1;

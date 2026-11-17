@@ -1,4 +1,4 @@
--- Просмотр актерского состава фильма Interstellar.
+-- Cast and character names for Interstellar.
 SELECT P.name,
        CC.character_name
 FROM Movies M
@@ -6,4 +6,4 @@ FROM Movies M
     JOIN ContentCharacters CC ON CP.id = CC.content_person_id
     JOIN Personnel P ON CP.person_id = P.id
 WHERE title = 'Interstellar'
-ORDER BY character_name
+ORDER BY character_name;

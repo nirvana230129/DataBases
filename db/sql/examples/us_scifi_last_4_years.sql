@@ -1,4 +1,4 @@
--- Поиск контента, выпущенного в Америке жанра Sci-Fi за последние 4 года.
+-- US Sci-Fi titles released in the last 4 years.
 WITH Selection AS (
     SELECT
         M.title,
@@ -34,4 +34,4 @@ WHERE
     G.name = 'Sci-Fi' AND
     C.name = 'United States' AND
     S.release_date >= DATE('now', '-4 years')
-order by title;
+ORDER BY title;

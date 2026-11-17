@@ -1,4 +1,4 @@
--- Определение для каждой роли самого частого ее исполнителя.
+-- Most frequent person for each crew/cast role.
 WITH RoleCounts AS (
     SELECT
         R.name AS role,
@@ -23,4 +23,4 @@ FROM
 WHERE
     rank = 1
 ORDER BY
-    role
+    role;

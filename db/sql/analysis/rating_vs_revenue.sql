@@ -1,4 +1,4 @@
--- Корреляция дохода и прибыли от проката с рейтингом фильма.
+-- Average revenue and profit by movie rating.
 SELECT
     rating,
     ROUND(AVG(revenue)) AS avg_revenue,
@@ -12,4 +12,4 @@ WHERE
 GROUP BY
     rating
 ORDER BY
-    rating
+    rating;

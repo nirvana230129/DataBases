@@ -1,5 +1,8 @@
+import os
 import sqlite3
+
 import psycopg2
+from dotenv import load_dotenv
 
 
 class PostgreDatabase:
@@ -70,7 +73,15 @@ class PostgreDatabase:
 
 
 
-with PostgreDatabase(dbname='MoviesTVShowsDB', user='postgres', password='Arif2004', host='127.0.0.1') as pdb:
-    pdb.clean()
-    pdb.create()
-    pdb.transfer_from_sqlite('database.db')
+if __name__ == '__main__':
+    load_dotenv()
+    with PostgreDatabase(
+        dbname=os.getenv('PGDATABASE', 'MoviesTVShowsDB'),
+        user=os.getenv('PGUSER', 'postgres'),
+        password=os.environ['PGPASSWORD'],
+        host=os.getenv('PGHOST', '127.0.0.1'),
+        port=os.getenv('PGPORT', '5432'),
+    ) as pdb:
+        pdb.clean()
+        pdb.create()
+        pdb.transfer_from_sqlite('database')

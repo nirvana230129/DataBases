@@ -1,4 +1,4 @@
--- Поиск общих картин двух актеров: Роберта Дауни Мл. И Зендеи.
+-- Titles shared by Robert Downey Jr. and Zendaya.
 WITH Actor1Content AS (
     SELECT
         CP.movie_id,
@@ -40,4 +40,4 @@ FROM
             SELECT tv_show_id FROM Actor1Content
             INTERSECT
             SELECT tv_show_id FROM Actor2Content
-    ) TVShow_ids ON TVS.id = TVShow_ids.tv_show_id
+    ) TVShow_ids ON TVS.id = TVShow_ids.tv_show_id;

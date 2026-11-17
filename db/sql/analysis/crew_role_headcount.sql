@@ -1,5 +1,5 @@
--- 1) Какой специалист (role) чаще всего является наиболее "многочисленным" при производстве фильма
--- 2) В каких фильмах (по названию) этот специалист не является самым "многочисленным"
+-- Movies where the most common crew role differs from the role that is most often
+-- the largest role group across all movies.
 WITH RankedRoles AS (
     SELECT
         movie_id,
@@ -35,12 +35,6 @@ MostNumerousRoleOverall AS (
         COUNT(*) DESC
     LIMIT 1
 )
-
--- SELECT
---     R.name,
---     MNRO.role_id
--- FROM MostNumerousRoleOverall MNRO
---     JOIN Roles R ON MNRO.role_id = R.id;
 
 SELECT
     M.title,

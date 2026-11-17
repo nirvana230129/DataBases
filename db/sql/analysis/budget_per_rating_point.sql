@@ -1,4 +1,4 @@
--- Посмотреть продукты с наибольшим отношением бюджета к рейтингу.
+-- Titles with the highest budget per rating point.
 SELECT
     title,
     budget,
@@ -27,4 +27,4 @@ FROM (
 WHERE
     budget IS NOT NULL AND
     rating > 0
-ORDER BY cost_per_rating_unit DESC
+ORDER BY cost_per_rating_unit DESC;

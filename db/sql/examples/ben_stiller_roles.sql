@@ -1,7 +1,7 @@
--- Посмотреть кем пробовал себя Ben Stiller при создании продуктов.
+-- Distinct roles Ben Stiller has held across titles.
 SELECT DISTINCT R.name AS role
 FROM Personnel P
     JOIN ContentPersonnel CP ON P.id = CP.person_id
     JOIN Roles R ON CP.role_id = R.id
 WHERE P.name = 'Ben Stiller'
-ORDER BY role
+ORDER BY role;

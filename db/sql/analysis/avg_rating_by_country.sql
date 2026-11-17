@@ -1,4 +1,4 @@
--- Поиск стран с лучшей средней оценкой.
+-- Countries with the highest average content rating.
 WITH CountriesRatings AS (
     SELECT C.name AS country,
            M.rating
@@ -21,4 +21,4 @@ FROM CountriesRatings CR
 GROUP BY country
 HAVING COUNT(*) > 3
 ORDER BY rating DESC, country
-LIMIT 10
+LIMIT 10;
